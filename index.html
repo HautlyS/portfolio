@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serrated Portfolio | Designer Activist</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #000000;
+            --green: #00FF85;
+            --green-dim: rgba(0, 255, 133, 0.15);
+            --mono: 'Space Mono', monospace;
+            --serrated: polygon(0% 0%, 5% 2%, 10% 0%, 15% 2%, 20% 0%, 25% 2%, 30% 0%, 35% 2%, 40% 0%, 45% 2%, 50% 0%, 55% 2%, 60% 0%, 65% 2%, 70% 0%, 75% 2%, 80% 0%, 85% 2%, 90% 0%, 95% 2%, 100% 0%, 100% 100%, 95% 98%, 90% 100%, 85% 98%, 80% 100%, 75% 98%, 70% 100%, 65% 98%, 60% 100%, 55% 98%, 50% 100%, 45% 98%, 40% 100%, 35% 98%, 30% 100%, 25% 98%, 20% 100%, 15% 98%, 10% 100%, 5% 98%, 0% 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: crosshair;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--green);
+            font-family: var(--mono);
+            overflow-x: hidden;
+            line-height: 1.2;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Noise & Texture Overlays */
+        .noise-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.08;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+            background-size: 100% 4px, 3px 100%;
+            pointer-events: none;
+            z-index: 9998;
+        }
+
+        /* Vitreous Background Container for Hero */
+        #vitreous-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 1;
+            pointer-events: none;
+        }
+
+        /* Layout Blocks */
+        section {
+            padding: 10vh 5vw;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .marquee {
+            white-space: nowrap;
+            overflow: hidden;
+            background: var(--green);
+            color: #000;
+            padding: 10px 0;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 1.2rem;
+            clip-path: var(--serrated);
+            margin-bottom: 2rem;
+        }
+
+        .marquee-inner {
+            display: inline-block;
+            animation: marquee 20s linear infinite;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Header / Hero */
+        header {
+            padding: 2rem;
+            border: 2px solid var(--green);
+            
+            margin-top: 5vh;
+            background: rgba(0, 11, 5, 0.3);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        h1 {
+            font-size: clamp(3rem, 15vw, 12rem);
+            font-weight: 900;
+            letter-spacing: -0.05em;
+            text-transform: uppercase;
+            line-height: 0.8;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .glitch-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            max-width: 600px;
+            text-transform: uppercase;
+            border-left: 10px solid var(--green);
+            padding-left: 1rem;
+            margin-top: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Projects Section */
+        .project-list {
+            margin-top: 10vh;
+            border-top: 1px solid var(--green);
+        }
+
+        .project-item {
+            padding: 3rem 0;
+            border-bottom: 1px solid var(--green);
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            align-items: center;
+            transition: background 0.3s ease;
+            position: relative;
+            overflow: visible;
+            cursor: pointer;
+        }
+
+        .project-item:hover {
+            background: var(--green);
+            color: #000;
+        }
+
+        .project-num {
+            font-size: 1rem;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .project-title {
+            font-size: clamp(2rem, 5vw, 6rem);
+            font-weight: 700;
+            text-transform: uppercase;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .project-tags {
+            text-align: right;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            pointer-events: none;
+        }
+
+        .project-img-preview {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 400px;
+            height: 300px;
+            background: #222;
+            z-index: 10000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            border: 5px solid #000;
+            box-shadow: 20px 20px 0px var(--bg);
+            object-fit: cover;
+            filter: grayscale(1) contrast(1.5);
+            transform-origin: center center;
+        }
+
+        /* Manifesto / Activism */
+        .manifesto-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 5vh;
+        }
+
+        .poster {
+            background: var(--green-dim);
+            padding: 2rem;
+            border: 1px solid var(--green);
+            position: relative;
+            transform: rotate(-1deg);
+            transition: transform 0.3s;
+        }
+
+        .poster:nth-child(even) {
+            transform: rotate(2deg);
+            background: #000;
+            color: var(--green);
+        }
+
+        .poster:hover {
+            transform: rotate(0deg) scale(1.02);
+            z-index: 5;
+            background: var(--green);
+            color: #000;
+        }
+
+        .poster h3 {
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            line-height: 1;
+        }
+
+        /* Footer CTA */
+        footer {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .cta-btn {
+            font-size: clamp(2rem, 8vw, 8rem);
+            font-weight: 900;
+            background: none;
+            border: 4px solid var(--green);
+            color: var(--green);
+            padding: 2rem 4rem;
+            text-transform: uppercase;
+            text-decoration: none;
+            clip-path: var(--serrated);
+            transition: all 0.2s;
+        }
+
+        .cta-btn:hover {
+            background: var(--green);
+            color: #000;
+            transform: skewX(-5deg);
+        }
+
+        /* Utility */
+        .outline-text {
+            -webkit-text-stroke: 1px var(--green);
+            color: transparent;
+        }
+
+        .stamp {
+            position: absolute;
+            top: 12%;
+            right: 20px;
+            border: 3px double var(--green);
+            padding: 5px 10px;
+            transform: rotate(15deg);
+            font-weight: bold;
+            text-transform: uppercase;
+            z-index: 3;
+        }
+
+        /* Version Overlay */
+        #version-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        #sos-version-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .version-btn {
+            background: none;
+            border: 2px solid var(--green);
+            color: var(--green);
+            padding: 1.5rem 3rem;
+            font-family: var(--mono);
+            text-transform: uppercase;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            clip-path: var(--serrated);
+        }
+
+        .version-btn:hover {
+            background: var(--green);
+            color: #000;
+        }
+
+        @media (max-width: 768px) {
+            .project-item {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            .project-tags { text-align: left; }
+            .project-img-preview { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="noise-overlay"></div>
+    <div class="scanlines"></div>
+
+    <div class="marquee">
+        <div class="marquee-inner">
+            OPEN SOURCE DEVELOPER // JAVASCRIPT // RUST // VUE.JS // TAILWIND // TAURI // BRAZIL // FREE THE SYSTEM // OPEN SOURCE // BODHICITTA // RUST // VUE.JS // TAILWIND // TAURI // BRAZIL // BODHICITTA MINDSET //
+        </div>
+    </div>
+
+    <section id="hero">
+        <canvas id="vitreous-canvas"></canvas>
+	<header>
+	    <div class="stamp">PROFESSIONAL OUTPUT</div>
+            <div class="glitch-wrapper">
+                <h1 id="glitch-text" data-text="TUPÃ LEVI">TUPÃ LEVI</h1>
+            </div>
+            <p class="subtitle">
+                Full-stack developer.<br> Building the future with Open-source.<br> Contributor in Git ecosystem.<br>Rust, Tauri, VueJS and Tailwind.
+            </p>
+        </header>
+    </section>
+
+    <section id="work">
+        <h2 class="outline-text" style="font-size: 4rem; text-transform: uppercase;">Manifested Code</h2>
+        <div class="project-list">
+            
+            <div class="project-item" onmouseenter="showImage(event, 'img1')" onmousemove="moveImage(event, 'img1')" onmouseleave="hideImage('img1')" onclick="window.open('https://psiuproject.github.io/web', '_blank')">
+                <span class="project-num">01/05</span>
+                <span class="project-title">PSIU PROJECT</span>
+                <span class="project-tags">Vue.js / JavaScript</span>
+                <img id="img1" src="public/psiu.png" class="project-img-preview" alt="Project 1">
+            </div>
+
+            <div class="project-item" onmouseenter="showImage(event, 'img2')" onmousemove="moveImage(event, 'img2')" onmouseleave="hideImage('img2')" onclick="window.open('https://technosutra.bhumisparshaschool.org/home', '_blank')">
+                <span class="project-num">02/05</span>
+                <span class="project-title">TECHNO SUTRA</span>
+                <span class="project-tags">HTML / CSS / Tailwind</span>
+                <img id="img2" src="public/technosutra.png" class="project-img-preview" alt="Project 2">
+            </div>
+
+            <div class="project-item" onmouseenter="showImage(event, 'img3')" onmousemove="moveImage(event, 'img3')" onmouseleave="hideImage('img3')" onclick="showSOSVersionOverlay(event)">
+                <span class="project-num">03/05</span>
+                <span class="project-title">SOS ÁGUAS DA PRATA</span>
+                <span class="project-tags">Select Version</span>
+                <img id="img3" src="public/sos.png" class="project-img-preview" alt="Project 3">
+            </div>
+
+            <div class="project-item" onmouseenter="showImage(event, 'img4')" onmousemove="moveImage(event, 'img4')" onmouseleave="hideImage('img4')" onclick="showVersionOverlay(event)">
+                <span class="project-num">04/05</span>
+                <span class="project-title">EARTH GUARDIANS BR</span>
+                <span class="project-tags">Select Version</span>
+                <img id="img4" src="public/egbr.png" class="project-img-preview" alt="Project 4">
+            </div>
+
+            <div class="project-item" onmouseenter="showImage(event, 'img5')" onmousemove="moveImage(event, 'img5')" onmouseleave="hideImage('img5')" onclick="window.location.href='./calendar.html'">
+                <span class="project-num">05/05</span>
+                <span class="project-title">CYBER CALENDAR</span>
+                <span class="project-tags">JavaScript / LocalStorage</span>
+                <img id="img5" src="public/calendar.png" class="project-img-preview" alt="Project 5">
+            </div>
+
+        </div>
+    </section>
+
+    <section id="activism">
+        <h2 class="outline-text" style="font-size: 4rem; text-transform: uppercase; align-self: flex-end;">Tech Stack</h2>
+        <div class="manifesto-grid">
+            <div class="poster">
+                <h3>Frontend Core</h3>
+                <p>JAVASCRIPT / HTML / CSS - The foundation of every project. Deep expertise in vanilla JS and modern CSS architectures.</p>
+            </div>
+            <div class="poster">
+                <h3>Frameworks & Tools</h3>
+                <p>VUE.JS / TAILWIND - Rapid development with powerful, maintainable code structures and utility-first styling.</p>
+            </div>
+            <div class="poster">
+                <h3>Systems Programming</h3>
+                <p>RUST / TAURI - Building performant desktop applications with web technologies and memory-safe backends.</p>
+            </div>
+            <div class="poster">
+                <h3>Version Control</h3>
+                <p>GITHUB / GITLAB / CODEBERG - Distributed development across multiple platforms. Open source by default.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <h2 style="margin-bottom: 2rem; text-transform: uppercase;">Ready to collaborate?</h2>
+        <a href="mailto:tupa@earthguardians.org" class="cta-btn">CONNECT</a>
+        <p style="margin-top: 5vh; opacity: 0.5;">© 2024 / BRAZIL / OPEN SOURCE</p>
+    </footer>
+
+    <!-- Version Selection Overlay -->
+    <div id="version-overlay">
+        <h2 style="color: var(--green); font-size: 2rem; margin-bottom: 3rem; text-transform: uppercase;">Select Earth Guardians BR Version</h2>
+        <div style="display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center;">
+            <button class="version-btn" onclick="window.location.href='./egbr.html'">
+                NEW VERSION
+            </button>
+            <button class="version-btn" onclick="window.location.href='https://earthguardiansbr.wixsite.com/earth'">
+                OLD VERSION
+            </button>
+        </div>
+        <button onclick="hideVersionOverlay()" style="margin-top: 2rem; background: none; border: none; color: rgba(0,255,133,0.5); font-family: var(--mono); cursor: pointer; font-size: 0.8rem; text-transform: uppercase;">
+            [ CLOSE ]
+        </button>
+    </div>
+
+    <!-- SOS Version Selection Overlay -->
+    <div id="sos-version-overlay">
+        <h2 style="color: var(--green); font-size: 2rem; margin-bottom: 3rem; text-transform: uppercase;">Select SOS Águas da Prata Version</h2>
+        <div style="display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center;">
+            <button class="version-btn" onclick="window.open('https://aguasdapratasos.wixstudio.com/2025', '_blank')">
+                SOS SITE
+            </button>
+            <button class="version-btn" onclick="window.location.href='./sos-eg.html'">
+                EG + SOS
+            </button>
+        </div>
+        <button onclick="hideSOSVersionOverlay()" style="margin-top: 2rem; background: none; border: none; color: rgba(0,255,133,0.5); font-family: var(--mono); cursor: pointer; font-size: 0.8rem; text-transform: uppercase;">
+            [ CLOSE ]
+        </button>
+    </div>
+
+    <script>
+        // Preload all preview images
+        window.addEventListener('load', () => {
+            const imageIds = ['img1', 'img2', 'img3', 'img4', 'img5'];
+            imageIds.forEach(id => {
+                const img = document.getElementById(id);
+                if (img && img.src) {
+                    const preload = new Image();
+                    preload.src = img.src;
+                }
+            });
+        });
+
+        // Custom Image Cursor Move
+        function showImage(e, imgId) {
+            // Hide all other images first
+            document.querySelectorAll('.project-img-preview').forEach(img => {
+                if (img.id !== imgId) {
+                    img.style.opacity = '0';
+                    img.style.display = 'none';
+                    img.style.transform = 'none';
+                }
+            });
+            
+            const img = document.getElementById(imgId);
+            if (img) {
+                img.style.display = 'block';
+                img.style.opacity = '1';
+                moveImage(e, imgId);
+            }
+        }
+
+        function moveImage(e, imgId) {
+            const img = document.getElementById(imgId);
+            if (img) {
+                const x = e.clientX;
+                const y = e.clientY;
+                img.style.left = x + 'px';
+                img.style.top = y + 'px';
+                img.style.transform = 'translate(-50%, -50%) rotate(5deg) scale(1.1)';
+            }
+        }
+
+        function hideImage(imgId) {
+            const img = document.getElementById(imgId);
+            if (img) {
+                img.style.opacity = '0';
+                img.style.transform = 'none';
+                setTimeout(() => {
+                    if (img.style.opacity === '0') {
+                        img.style.display = 'none';
+                    }
+                }, 200);
+            }
+        }
+
+        // Glitch Effect
+        const glitchElement = document.getElementById('glitch-text');
+        const originalText = glitchElement.innerText;
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ#$@&*";
+
+        setInterval(() => {
+            if (Math.random() > 0.9) {
+                let glitched = originalText.split('').map(char => {
+                    if (Math.random() > 0.8) return chars[Math.floor(Math.random() * chars.length)];
+                    return char;
+                }).join('');
+                glitchElement.innerText = glitched;
+                setTimeout(() => {
+                    glitchElement.innerText = originalText;
+                }, 100);
+            }
+        }, 150);
+
+        // Scroll Reveal
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.poster, .project-item').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'all 0.6s cubic-bezier(0.23, 1, 0.32, 1)';
+            observer.observe(el);
+        });
+
+        // Version overlay functions
+        function showVersionOverlay(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            document.getElementById('version-overlay').style.display = 'flex';
+        }
+
+        function hideVersionOverlay() {
+            document.getElementById('version-overlay').style.display = 'none';
+        }
+
+        // SOS Version overlay functions
+        function showSOSVersionOverlay(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            document.getElementById('sos-version-overlay').style.display = 'flex';
+        }
+
+        function hideSOSVersionOverlay() {
+            document.getElementById('sos-version-overlay').style.display = 'none';
+        }
+
+        // Vitreous Background Animation (Deconstruction/Construction Circle)
+        let scene, camera, renderer, particles;
+        const PARTICLE_COUNT = 8000;
+        const circlePositions = new Float32Array(PARTICLE_COUNT * 3);
+        const randomPositions = new Float32Array(PARTICLE_COUNT * 3);
+        let isDeconstructed = false;
+
+        function initVitreous() {
+            const canvas = document.getElementById('vitreous-canvas');
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 0.1, 1000);
+            camera.position.z = 5;
+
+            renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+            renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+            createParticles();
+            animateVitreous();
+
+            // Trigger reconstruction on load
+            setTimeout(() => {
+                triggerReconstruction();
+            }, 500);
+        }
+
+        function createParticles() {
+            const geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(PARTICLE_COUNT * 3);
+            const colors = new Float32Array(PARTICLE_COUNT * 3);
+
+            for (let i = 0; i < PARTICLE_COUNT; i++) {
+                // Circle formation
+                const angle = (i / PARTICLE_COUNT) * Math.PI * 2;
+                const radius = 2;
+                circlePositions[i * 3] = Math.cos(angle) * radius;
+                circlePositions[i * 3 + 1] = Math.sin(angle) * radius;
+                circlePositions[i * 3 + 2] = (Math.random() - 0.5) * 0.5;
+
+                // Random scattered positions
+                randomPositions[i * 3] = (Math.random() - 0.5) * 15;
+                randomPositions[i * 3 + 1] = (Math.random() - 0.5) * 15;
+                randomPositions[i * 3 + 2] = (Math.random() - 0.5) * 5;
+
+                // Start at random positions
+                positions[i * 3] = randomPositions[i * 3];
+                positions[i * 3 + 1] = randomPositions[i * 3 + 1];
+                positions[i * 3 + 2] = randomPositions[i * 3 + 2];
+
+                // Green color matching the theme
+                colors[i * 3] = 0;
+                colors[i * 3 + 1] = 1;
+                colors[i * 3 + 2] = 0.5 + Math.random() * 0.5;
+            }
+
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+            const material = new THREE.PointsMaterial({
+                size: 0.03,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.8,
+                blending: THREE.AdditiveBlending
+            });
+
+            particles = new THREE.Points(geometry, material);
+            scene.add(particles);
+        }
+
+        function triggerReconstruction() {
+            const posAttr = particles.geometry.attributes.position;
+            const targetPos = isDeconstructed ? randomPositions : circlePositions;
+            
+            for (let i = 0; i < PARTICLE_COUNT; i++) {
+                const i3 = i * 3;
+                gsap.to(posAttr.array, {
+                    [i3]: targetPos[i3],
+                    [i3+1]: targetPos[i3+1],
+                    [i3+2]: targetPos[i3+2],
+                    duration: 2 + Math.random(),
+                    ease: "power2.inOut",
+                    onUpdate: () => posAttr.needsUpdate = true
+                });
+            }
+
+            isDeconstructed = !isDeconstructed;
+        }
+
+        function animateVitreous() {
+            requestAnimationFrame(animateVitreous);
+            
+            particles.rotation.z += 0.002;
+            particles.rotation.y += 0.001;
+
+            renderer.render(scene, camera);
+        }
+
+        // Handle resize
+        window.addEventListener('resize', () => {
+            const canvas = document.getElementById('vitreous-canvas');
+            const header = document.querySelector('header');
+            if (canvas && header) {
+                canvas.width = header.clientWidth;
+                canvas.height = header.clientHeight;
+                renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+                camera.aspect = canvas.clientWidth / canvas.clientHeight;
+                camera.updateProjectionMatrix();
+            }
+        });
+
+        // Initialize vitreous background
+        window.addEventListener('load', initVitreous);
+
+        // Periodically reconstruct for dynamic effect
+        setInterval(() => {
+            if (document.getElementById('hero')) {
+                triggerReconstruction();
+            }
+        }, 4000);
+    </script>
+</body>
+</html>
