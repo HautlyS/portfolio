@@ -368,36 +368,43 @@
         <h2 class="outline-text" style="font-size: 4rem; text-transform: uppercase;">Manifested Code</h2>
         <div class="project-list">
             
+            <div class="project-item" onmouseenter="showImage(event, 'img6')" onmousemove="moveImage(event, 'img6')" onmouseleave="hideImage('img6')" onclick="window.open('https://shop.bhumisparshaschool.org', '_blank')">
+                <span class="project-num">01/06</span>
+                <span class="project-title">BHUMISPARSA SHOP</span>
+                <span class="project-tags">Vue.js / Nuxt / Store</span>
+                <img id="img6" src="public/bhumisparsa-shop.png" class="project-img-preview" alt="Project 6">
+            </div>
+
             <div class="project-item" onmouseenter="showImage(event, 'img1')" onmousemove="moveImage(event, 'img1')" onmouseleave="hideImage('img1')" onclick="window.open('https://hautlys.github.io/projects', '_blank')">
-                <span class="project-num">01/05</span>
+                <span class="project-num">02/06</span>
                 <span class="project-title">PSIU PROJECT</span>
                 <span class="project-tags">Vue.js / JavaScript</span>
                 <img id="img1" src="public/psiu.png" class="project-img-preview" alt="Project 1">
             </div>
 
             <div class="project-item" onmouseenter="showImage(event, 'img2')" onmousemove="moveImage(event, 'img2')" onmouseleave="hideImage('img2')" onclick="window.open('https://technosutra.bhumisparshaschool.org/home', '_blank')">
-                <span class="project-num">02/05</span>
+                <span class="project-num">03/06</span>
                 <span class="project-title">TECHNO SUTRA</span>
                 <span class="project-tags">HTML / CSS / Tailwind</span>
                 <img id="img2" src="public/technosutra.png" class="project-img-preview" alt="Project 2">
             </div>
 
             <div class="project-item" onmouseenter="showImage(event, 'img3')" onmousemove="moveImage(event, 'img3')" onmouseleave="hideImage('img3')" onclick="showSOSVersionOverlay(event)">
-                <span class="project-num">03/05</span>
+                <span class="project-num">04/06</span>
                 <span class="project-title">SOS ÁGUAS DA PRATA</span>
                 <span class="project-tags">Select Version</span>
                 <img id="img3" src="public/sos.png" class="project-img-preview" alt="Project 3">
             </div>
 
             <div class="project-item" onmouseenter="showImage(event, 'img4')" onmousemove="moveImage(event, 'img4')" onmouseleave="hideImage('img4')" onclick="showVersionOverlay(event)">
-                <span class="project-num">04/05</span>
+                <span class="project-num">05/06</span>
                 <span class="project-title">EARTH GUARDIANS BR</span>
                 <span class="project-tags">Select Version</span>
                 <img id="img4" src="public/egbr.png" class="project-img-preview" alt="Project 4">
             </div>
 
             <div class="project-item" onmouseenter="showImage(event, 'img5')" onmousemove="moveImage(event, 'img5')" onmouseleave="hideImage('img5')" onclick="window.location.href='./calendar.html'">
-                <span class="project-num">05/05</span>
+                <span class="project-num">06/06</span>
                 <span class="project-title">CYBER CALENDAR</span>
                 <span class="project-tags">JavaScript / LocalStorage</span>
                 <img id="img5" src="public/calendar.png" class="project-img-preview" alt="Project 5">
@@ -469,7 +476,7 @@
     <script>
         // Preload all preview images
         window.addEventListener('load', () => {
-            const imageIds = ['img1', 'img2', 'img3', 'img4', 'img5'];
+            const imageIds = ['img1', 'img2', 'img3', 'img4', 'img5', 'img6'];
             imageIds.forEach(id => {
                 const img = document.getElementById(id);
                 if (img && img.src) {
